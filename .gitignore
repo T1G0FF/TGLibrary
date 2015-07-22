@@ -6,6 +6,11 @@
 *.user
 *.sln.docstates
 
+# Visual Studio
+.Properties/
+*.csproj
+*.sln
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
