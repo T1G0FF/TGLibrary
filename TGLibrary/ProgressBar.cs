@@ -34,7 +34,7 @@ namespace TGLibrary
 			{
 				Percent = (double)value / (double)Max;
 				string Bar = this.ToString();
-				if (value >= Max -1)
+				if (value > Max -1)
 				{
 					Bar = Bar + "\n";
 				}
