@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TGLibrary {
     public static class TaskHelper {
-        public static T[] ProcessDirectory<T>(string dirPath, Func<Object, T> function, IHasFilePath parameters,int threadCount = 4) {
+        public static T[] ProcessDirectory<T>(string dirPath, Func<string, Object, T> function, Object parameters,int threadCount = 4) {
             T[] result = null;
 
             if (Directory.Exists(dirPath)) {
@@ -15,17 +15,14 @@ namespace TGLibrary {
             return result;
         }
 
-        public static T[] ProcessFileList<T>(string[] fileList, Func<Object, T> function, IHasFilePath parameters, int threadCount = 4) {
-            T[] result = null;
+        public static T[] ProcessFileList<T>(string[] fileList, Func<string, Object, T> function, Object parameters, int threadCount = 4) {
+            T[] fileResultsList = null;
 
             if (fileList != null && fileList.Length > 0) {
-                string workingDir = Path.GetTempPath() + Path.DirectorySeparatorChar + "TEMP";
                 int fileCountTotal = fileList.Length;
-                T[] fileResultsList = new T[fileCountTotal];
+                fileResultsList = new T[fileCountTotal];
 
                 int totalThreadGroups = (int)Math.Ceiling(fileCountTotal / (double)threadCount);
-                if ((fileCountTotal % threadCount) != 0)
-                    totalThreadGroups = totalThreadGroups + 1;
 
                 for (int currentThreadGroup = 0; currentThreadGroup < totalThreadGroups; currentThreadGroup++) {
                     int left = fileCountTotal - (currentThreadGroup * threadCount);
@@ -37,19 +34,15 @@ namespace TGLibrary {
                         string currentFile = fileList[fileIndex];
                         currentTasks[fileNumber] = Task.Factory.StartNew(() => {
                             if (File.Exists(currentFile)) {
-                                parameters.FilePath = currentFile;
-                                fileResultsList[fileIndex] = function(parameters);
+                                fileResultsList[fileIndex] = function(currentFile, parameters);
                             }
-
-                                
                         });
                     }
                     Task.WaitAll(currentTasks);
                 }
-                FileHelper.RemoveDirectory(workingDir);
             }
 
-            return result;
+            return fileResultsList;
         }
     }
 }
