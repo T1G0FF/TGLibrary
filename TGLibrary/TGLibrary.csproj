@@ -43,10 +43,10 @@
     <Compile Include="Console.AnyKey.cs" />
     <Compile Include="Characters.cs" />
     <Compile Include="Console.Extensions.cs" />
+    <Compile Include="WorkingDirectory.cs" />
     <Compile Include="CSVLoader.cs" />
     <Compile Include="Console.Draw.cs" />
     <Compile Include="FileHelper.cs" />
-    <Compile Include="IHasFilePath.cs" />
     <Compile Include="ImageDisplay.cs" />
     <Compile Include="Maths.cs" />
     <Compile Include="Console.ProgressBar.cs" />
