@@ -63,5 +63,30 @@ namespace TGLibrary {
 
             Directory.Delete(targetDir, false);
         }
+
+        public static string SafeCreateDirectory(string folderPath) {
+            if (Directory.Exists(folderPath)) {
+                folderPath = folderPath + Guid.NewGuid() + Path.DirectorySeparatorChar;
+            }
+            Directory.CreateDirectory(folderPath);
+            return folderPath;
+        }
+
+        public static string GetUniqueFileName(string fileName, string fileExtension) {
+            return $"{fileName}_{Guid.NewGuid().ToString().ToUpper()}.{fileExtension}";
+            //DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()
+            //DateTime.Now.ToString("yyyy-MM-dd-HHmmssfff")
+        }
+
+        public static string GetDesktopFolderPath(string newFolderName) {
+            string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)
+                                            + Path.DirectorySeparatorChar
+                                            + newFolderName
+                                            + Path.DirectorySeparatorChar;
+            if (!Directory.Exists(folderPath)) {
+                Directory.CreateDirectory(folderPath);
+            }
+            return folderPath;
+        }
     }
 }
