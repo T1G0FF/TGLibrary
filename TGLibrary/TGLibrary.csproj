@@ -39,23 +39,23 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Alert.cs" />
-    <Compile Include="AnyKey.cs" />
+    <Compile Include="Console.Alert.cs" />
+    <Compile Include="Console.AnyKey.cs" />
     <Compile Include="Characters.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Console.Extensions.cs" />
     <Compile Include="CSVLoader.cs" />
-    <Compile Include="Draw.cs" />
+    <Compile Include="Console.Draw.cs" />
     <Compile Include="FileHelper.cs" />
     <Compile Include="ImageDisplay.cs" />
     <Compile Include="Maths.cs" />
-    <Compile Include="ProgressBar.cs" />
+    <Compile Include="Console.ProgressBar.cs" />
     <Compile Include="ROT.cs" />
     <Compile Include="TaskHelper.cs" />
     <Compile Include="Temperature.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="TextAlign.cs" />
-    <Compile Include="TextFit.cs" />
+    <Compile Include="Console.Text.Align.cs" />
+    <Compile Include="Console.Text.Fit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
