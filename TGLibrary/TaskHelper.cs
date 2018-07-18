@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 
 namespace TGLibrary {
     public static class TaskHelper {
-        public static T[] ProcessDirectory<T>(string dirPath, Func<Object, T> function, int threadCount = 4) {
+        public static T[] ProcessDirectory<T>(string dirPath, Func<Object, T> function, IHasFilePath parameters,int threadCount = 4) {
             T[] result = null;
 
             if (Directory.Exists(dirPath)) {
                 string[] fileList = Directory.GetFiles(dirPath);
-                result = ProcessFileList<T>(fileList, function, threadCount);
+                result = ProcessFileList<T>(fileList, function, parameters, threadCount);
             }
 
             return result;
         }
 
-        public static T[] ProcessFileList<T>(string[] fileList, Func<Object, T> function, int threadCount = 4) {
+        public static T[] ProcessFileList<T>(string[] fileList, Func<Object, T> function, IHasFilePath parameters, int threadCount = 4) {
             T[] result = null;
 
             if (fileList != null && fileList.Length > 0) {
@@ -36,8 +36,12 @@ namespace TGLibrary {
                         int fileIndex = currentThreadGroup * threadCount + fileNumber;
                         string currentFile = fileList[fileIndex];
                         currentTasks[fileNumber] = Task.Factory.StartNew(() => {
-                            if (File.Exists(currentFile))
-                                fileResultsList[fileIndex] = function(currentFile);
+                            if (File.Exists(currentFile)) {
+                                parameters.FilePath = currentFile;
+                                fileResultsList[fileIndex] = function(parameters);
+                            }
+
+                                
                         });
                     }
                     Task.WaitAll(currentTasks);
