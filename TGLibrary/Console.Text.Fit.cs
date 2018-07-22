@@ -7,45 +7,31 @@ namespace TGLibrary {
         /// Contains methods for manipulating text.
         /// </remarks>
         public partial class Text {
-            public static string Fit(string text) { return Fit(Config.DefaultWidth, text, Center); }
-            public static string FitLeft(string text) { return Fit(Config.DefaultWidth, text, Left); }
-            public static string FitCenter(string text) { return Fit(Config.DefaultWidth, text, Center); }
-            public static string FitRight(string text) { return Fit(Config.DefaultWidth, text, Right); }
-            public static string Fit(int width, string text) { return Fit(width, text, ' ', ' ', Center); }
-            public static string FitLeft(int width, string text) { return Fit(width, text, ' ', ' ', Left); }
-            public static string FitCenter(int width, string text) { return Fit(width, text, ' ', ' ', Center); }
-            public static string FitRight(int width, string text) { return Fit(width, text, ' ', ' ', Right); }
-            public static string Fit(int width, string text, char ends) { return Fit(width, text, ends, ' ', Center); }
-            public static string FitLeft(int width, string text, char ends) { return Fit(width, text, ends, ' ', Left); }
-            public static string FitCenter(int width, string text, char ends) { return Fit(width, text, ends, ' ', Center); }
-            public static string FitRight(int width, string text, char ends) { return Fit(width, text, ends, ' ', Right); }
-            public static string Fit(int width, string text, char ends, char line) { return Fit(width, text, ends, line, Center); }
-            public static string FitLeft(int width, string text, char ends, char line) { return Fit(width, text, ends, line, Left); }
-            public static string FitCenter(int width, string text, char ends, char line) { return Fit(width, text, ends, line, Center); }
-            public static string FitRight(int width, string text, char ends, char line) { return Fit(width, text, ends, line, Right); }
+            public static string Fit(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Center); }
+            public static string FitLeft(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Left); }
+            public static string FitCenter(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Center); }
+            public static string FitRight(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Right); }
+
+            public static string Fit(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Center); }
+            public static string FitLeft(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Left); }
+            public static string FitCenter(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Center); }
+            public static string FitRight(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Right); }
+
+            public static string Fit(int width, string text, char ends) { return Fit(width, text, ends, ' ', ends, Center); }
+            public static string FitLeft(int width, string text, char ends) { return Fit(width, text, ends, ' ', ends, Left); }
+            public static string FitCenter(int width, string text, char ends) { return Fit(width, text, ends, ' ', ends, Center); }
+            public static string FitRight(int width, string text, char ends) { return Fit(width, text, ends, ' ', ends, Right); }
+
+            public static string Fit(int width, string text, char ends, char line) { return Fit(width, text, ends, line, ends, Center); }
+            public static string FitLeft(int width, string text, char ends, char line) { return Fit(width, text, ends, line, ends, Left); }
+            public static string FitCenter(int width, string text, char ends, char line) { return Fit(width, text, ends, line, ends, Center); }
+            public static string FitRight(int width, string text, char ends, char line) { return Fit(width, text, ends, line, ends, Right); }
+
             public static string Fit(int width, string text, char leftEnd, char line, char rightEnd) { return Fit(width, text, leftEnd, line, rightEnd, Center); }
             public static string FitLeft(int width, string text, char leftEnd, char line, char rightEnd) { return Fit(width, text, leftEnd, line, rightEnd, Left); }
             public static string FitCenter(int width, string text, char leftEnd, char line, char rightEnd) { return Fit(width, text, leftEnd, line, rightEnd, Center); }
             public static string FitRight(int width, string text, char leftEnd, char line, char rightEnd) { return Fit(width, text, leftEnd, line, rightEnd, Right); }
-
-            public static string Fit(int width, string text, Func<int, string, string> AlignText) {
-                StringBuilder sb = new StringBuilder();
-                while (text.Length > width) {
-                    string row = _getRow(width, ref text);
-
-                    sb.Append(AlignText(width, row));
-                    if (width < Console.WindowWidth) {
-                        sb.Append(Environment.NewLine);
-                    }
-                }
-                sb.Append(AlignText(width, text));
-                return sb.ToString();
-            }
-
-            public static string Fit(int width, string text, char ends, char line, Func<int, string, char, char, char, string> AlignText) {
-                return Fit(width, text, ends, line, ends, AlignText);
-            }
-
+            
             public static string Fit(int width, string text, char leftEnd, char line, char rightEnd, Func<int, string, char, char, char, string> AlignText) {
                 // 4 in total = 2 Ends and 2 Spaces
                 int rowWidth = width - 4;
