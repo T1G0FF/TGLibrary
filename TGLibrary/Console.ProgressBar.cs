@@ -6,7 +6,7 @@ namespace TGLibrary {
             public int Max { get; private set; }
             public int Width { get; private set; }
             public double Percent { get; private set; }
-            public int Loaded { get { return (int)Math.Round(Percent * Width, MidpointRounding.AwayFromZero); } }
+            public int Loaded { get { return (int)Math.Ceiling(Percent * Width); } }
             public int Unloaded { get { return Width - Loaded; } }
 
 
