@@ -9,26 +9,26 @@ namespace TGLibrary {
             string fileName = dirOut + ".cbz";
             string fileNameFast = fileName + ".fst";
             string fileNameOptm = fileName + ".opt";
-            FileInfo fFast = null;
-            FileInfo fOptm = null;
+            FileInfo fileFast = null;
+            FileInfo fileOptm = null;
 
             Task[] tasks = new Task[2];
 
             tasks[0] = Task.Factory.StartNew(() => {
                 ZipFile.CreateFromDirectory(dirZip, fileNameFast, CompressionLevel.Fastest, false);
-                fFast = new FileInfo(fileNameFast);
+                fileFast = new FileInfo(fileNameFast);
             });
 
             tasks[1] = Task.Factory.StartNew(() => {
                 ZipFile.CreateFromDirectory(dirZip, fileNameOptm, CompressionLevel.Optimal, false);
-                fOptm = new FileInfo(fileNameOptm);
+                fileOptm = new FileInfo(fileNameOptm);
             });
 
             Task.WaitAll(tasks);
 
             if (File.Exists(fileName) == false) {
-                if (fFast.Length > fOptm.Length)    // Keeps only the smaller of the 2 files
-                {
+                // Keeps only the smaller of the 2 files
+                if (fileFast.Length > fileOptm.Length) {
                     File.Delete(fileNameOptm);
                     File.Move(fileNameFast, fileName);
                 }
@@ -64,16 +64,27 @@ namespace TGLibrary {
             Directory.Delete(targetDir, false);
         }
 
-        public static string SafeCreateDirectory(string folderPath) {
+        public static string SafeCreateUniqueDirectory(string folderPath) {
             if (Directory.Exists(folderPath)) {
-                folderPath = folderPath + Guid.NewGuid() + Path.DirectorySeparatorChar;
+                folderPath = folderPath + "_" + getUniqueString() + Path.DirectorySeparatorChar;
             }
             Directory.CreateDirectory(folderPath);
             return folderPath;
         }
 
+        public static string SafeCreateDirectory(string folderPath) {
+            if (!Directory.Exists(folderPath)) {
+                Directory.CreateDirectory(folderPath);
+            }
+            return folderPath + Path.DirectorySeparatorChar;
+        }
+
         public static string GetUniqueFileName(string fileName, string fileExtension) {
-            return $"{fileName}_{Guid.NewGuid().ToString().ToUpper()}.{fileExtension}";
+            return $"{fileName}_{getUniqueString()}.{fileExtension}";
+        }
+
+        internal static string getUniqueString() {
+            return Guid.NewGuid().ToString().ToUpper();
             //DateTime.Now.Ticks.GetHashCode().ToString("x").ToUpper()
             //DateTime.Now.ToString("yyyy-MM-dd-HHmmssfff")
         }
