@@ -8,7 +8,7 @@ namespace TGLibrary {
 
         #region Public Methods
         public WorkingDirectory() {
-            this.Path = System.IO.Path.GetTempPath() + System.IO.Path.DirectorySeparatorChar + Guid.NewGuid() + System.IO.Path.DirectorySeparatorChar;
+            this.Path = System.IO.Path.GetTempPath() + System.IO.Path.DirectorySeparatorChar + FileHelper.getUniqueString() + System.IO.Path.DirectorySeparatorChar;
             Path = FileHelper.SafeCreateDirectory(Path);
         }
 
