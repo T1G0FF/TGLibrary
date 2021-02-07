@@ -1,0 +1,204 @@
+﻿public ImageDisplayPopup(Image image, bool autoOpen, int width, int height) {
+            originalImage = image;
+            bmp = (Bitmap)image.Clone();
+
+            this.BackColor = Color.Red;
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new Size(width, height);
+            this.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            this.SetStyle(ControlStyles.DoubleBuffer |
+                          ControlStyles.UserPaint |
+                          ControlStyles.AllPaintingInWmPaint,
+                true);
+            this.UpdateStyles();
+            this.Resize += Form_Resize;
+            this.ResizeEnd += Form_ResizeEnd;
+            //Application.Run(this);
+
+            pbox = new PictureBox {
+                Image = image,
+                BackColor = Color.Green,
+                Location = new Point(0, 0),
+                Size = new Size(width, height),
+                SizeMode = PictureBoxSizeMode.Normal,
+                Padding = Padding.Empty,
+                Margin = Padding.Empty
+            };
+            pbox.MouseUp += PBox_MouseUp;
+            pbox.MouseDown += PBox_MouseDown;
+            pbox.MouseMove += PBox_MouseMove;
+            //pbox.MouseClick += PBox_MouseClick;
+            pbox.MouseWheel += PBox_MouseWheel;
+            this.Controls.Add(pbox);
+
+            Form_Resize(null, null);
+            if (autoOpen) {
+                this.ShowDialog();
+            }
+        }
+
+        private FormWindowState? LastWindowState = null;
+        private void Form_Resize(object sender, EventArgs e) {
+            if (WindowState != LastWindowState) {
+                LastWindowState = WindowState;
+                Form_ResizeEnd(sender, e);
+            }
+        }
+
+        private void Form_ResizeEnd(object sender, EventArgs e) {
+            //pbox.Size = ClientSize;
+            //ScaleImage(GetZoomFill());
+            if (pbox.Image.Width < pbox.Width
+                || pbox.Image.Height < pbox.Height) {
+                pbox.SizeMode = PictureBoxSizeMode.CenterImage;
+            }
+            else if (pbox.Image.Width > ClientSize.Width
+                     || pbox.Image.Height > ClientSize.Height) {
+                pbox.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+            CenterPictureBox();
+            this.Refresh();
+        }
+
+        private void CenterPictureBox() {
+            int h = this.ClientSize.Width - pbox.Width;
+            int w = this.ClientSize.Height - pbox.Height;
+            Padding pad = new Padding {
+                Top = w / 2,
+                Left = h / 2,
+            };
+            pbox.Location = new Point(pad.Left, pad.Top);
+            //pbox.Padding = pad;
+        }
+
+        private enum Zoom {
+            Fit = -1,
+            Original = 3,
+        }
+        private static readonly float[] ZOOMLEVELS =
+        {
+            0.25F,
+            0.50F,
+            0.75F,
+            1.00F,
+            1.25F,
+            1.50F,
+            1.75F,
+            2.00F,
+            2.50F,
+            3.00F,
+            4.00F,
+            5.00F,
+            6.00F,
+            8.00F,
+            16.00F
+        };
+        private void PBox_MouseWheel(object sender, MouseEventArgs e) {
+            if (e.Delta > 0) // Mouse Wheel Forward
+            {
+                currentZoomLevel++;
+                if (currentZoomLevel > ZOOMLEVELS.Length - 1)
+                    currentZoomLevel = ZOOMLEVELS.Length - 1;
+            }
+            else // Mouse Wheel Backward
+            {
+                currentZoomLevel--;
+                if (currentZoomLevel < 0)
+                    currentZoomLevel = 0;
+            }
+
+            ScaleImage(ZOOMLEVELS[currentZoomLevel]);
+        }
+
+        private void ScaleImage(double scale) {
+            if (bmp == null) {
+                bmp = new Bitmap(originalImage.Width, originalImage.Height);
+                bmp.SetResolution(originalImage.HorizontalResolution, originalImage.VerticalResolution);
+            }
+
+            double centerX = (pbox.Image.Width - (pbox.Image.Width * scale)) / 2;
+            double centerY = (pbox.Image.Height - (pbox.Image.Height * scale)) / 2;
+
+            using (Graphics gfx = Graphics.FromImage(bmp)) {
+                gfx.Clear(pbox.BackColor);
+                gfx.ScaleTransform((float)scale, (float)scale);
+                gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+                gfx.DrawImage(originalImage, new Point((int)(centerX / scale), (int)(centerY / scale)));
+            }
+
+            pbox.Image = bmp;
+            this.Refresh();
+        }
+
+        private double GetZoomFill() {
+            double fillH = ((double)(this.ClientSize.Height) / pbox.Image.Height);
+            double fillW = ((double)(this.ClientSize.Width) / pbox.Image.Width);
+            double fill = (fillW > fillH) ? fillH : fillW;
+            return fill;
+        }
+
+        private void PBox_MouseMove(object sender, MouseEventArgs e) {
+            if (Capture) {
+                int hValue = (offset.X + (mouseDownPoint.X - e.Location.X));
+                int vValue = (offset.Y + (mouseDownPoint.Y + 1 - e.Location.Y));
+
+                pbox.Top = hValue;
+                pbox.Left = vValue;
+            }
+        }
+
+        private void PBox_MouseClick(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Middle) {
+                if (scaleToggle) {
+                    currentZoomLevel = (int)Zoom.Original;
+                    ScaleImage(ZOOMLEVELS[currentZoomLevel]);
+                }
+                else {
+                    currentZoomLevel = (int)Zoom.Fit;
+                    ScaleImage(GetZoomFill());
+                }
+
+                scaleToggle = !scaleToggle;
+            }
+        }
+
+        private void PBox_MouseDown(object sender, MouseEventArgs e) {
+            if (e.Button == MouseButtons.Left) {
+                offset = this.PointToClient(new Point(pbox.Top, pbox.Left));
+                mouseDownPoint = e.Location;
+                Capture = true;
+            }
+        }
+
+        private void PBox_MouseUp(object sender, MouseEventArgs e) {
+            switch (e.Button) {
+                case MouseButtons.Left:
+                    Console.WriteLine($"MouseDown: [{mouseDownPoint.X},{mouseDownPoint.Y}] | MouseUp: [{e.Location.X},{e.Location.Y}]");
+                    Console.WriteLine($"Offset [{offset.X},{offset.Y}] | PBox: [{pbox.Top},{pbox.Left}]");
+                    Capture = false;
+                    break;
+                case MouseButtons.None:
+                    break;
+                case MouseButtons.Right:
+                    break;
+                case MouseButtons.Middle:
+                    if (scaleToggle) {
+                        currentZoomLevel = (int)Zoom.Original;
+                        ScaleImage(ZOOMLEVELS[currentZoomLevel]);
+                    }
+                    else {
+                        currentZoomLevel = (int)Zoom.Fit;
+                        ScaleImage(GetZoomFill());
+                    }
+
+                    scaleToggle = !scaleToggle;
+                    break;
+                case MouseButtons.XButton1:
+                    break;
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
