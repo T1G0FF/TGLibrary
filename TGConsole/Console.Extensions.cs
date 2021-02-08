@@ -4,6 +4,18 @@ using System.IO;
 
 namespace TGConsole {
 	public static class ConsoleFunctions {
+		private static bool? _ConsolePresent;
+		public static bool ConsolePresent {
+			get {
+				if (_ConsolePresent == null) {
+					_ConsolePresent = true;
+					try { int window_height = Console.WindowHeight; }
+					catch { _ConsolePresent = false; }
+				}
+				return _ConsolePresent.Value;
+			}
+		}
+
 		public static string GetValidDirectory() {
 			string folderPath;
 			do {
@@ -81,7 +93,7 @@ namespace TGConsole {
 		}
 
 		public static void ReplaceLine(string text, Text.Align alignment = Text.Align.Left) {
-			int width = Console.WindowWidth - 1;
+			int width = Config.ConsoleWidth - 1;
 
 			switch (alignment) {
 				default:

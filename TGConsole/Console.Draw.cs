@@ -4,15 +4,15 @@ using System.Text;
 namespace TGConsole {
 	public class Draw {
 		public static string Line(char line) {
-			return Line(Config.DefaultWidth, line);
+			return Line(Config.ConsoleWidth, line);
 		}
 
 		public static string Line(char ends, char line) {
-			return Line(Config.DefaultWidth, ends, line, ends);
+			return Line(Config.ConsoleWidth, ends, line, ends);
 		}
 
 		public static string Line(char leftEnd, char line, char rightEnd) {
-			return Line(Config.DefaultWidth, leftEnd, line, rightEnd);
+			return Line(Config.ConsoleWidth, leftEnd, line, rightEnd);
 		}
 
 		public static string Line(int width, char line) {

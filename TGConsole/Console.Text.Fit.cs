@@ -6,10 +6,10 @@ namespace TGConsole {
 	/// Contains methods for manipulating text.
 	/// </remarks>
 	public partial class Text {
-		public static string Fit(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Center); }
-		public static string FitLeft(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Left); }
-		public static string FitCenter(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Center); }
-		public static string FitRight(string text) { return Fit(Config.DefaultWidth, text, ' ', ' ', ' ', Right); }
+		public static string Fit(string text) { return Fit(Config.ConsoleWidth, text, ' ', ' ', ' ', Center); }
+		public static string FitLeft(string text) { return Fit(Config.ConsoleWidth, text, ' ', ' ', ' ', Left); }
+		public static string FitCenter(string text) { return Fit(Config.ConsoleWidth, text, ' ', ' ', ' ', Center); }
+		public static string FitRight(string text) { return Fit(Config.ConsoleWidth, text, ' ', ' ', ' ', Right); }
 
 		public static string Fit(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Center); }
 		public static string FitLeft(int width, string text) { return Fit(width, text, ' ', ' ', ' ', Left); }
@@ -35,22 +35,31 @@ namespace TGConsole {
 			// 4 in total = 2 Ends and 2 Spaces
 			int rowWidth = width - 4;
 			StringBuilder sb = new StringBuilder();
-			while (text.Length > rowWidth) {
-				string row = GetRow(rowWidth, ref text);
 
-				sb.Append(AlignText(width, row, leftEnd, line, rightEnd));
-				if (width < Console.WindowWidth) {
+			string[] splitText = text.Split(new string[] { "\n", Environment.NewLine }, StringSplitOptions.None);
+			foreach (string st in splitText) {
+				while (st.Length > rowWidth) {
+					string row = GetRow(rowWidth, ref text);
+
+					sb.Append(AlignText(width, row, leftEnd, line, rightEnd));
+					if (!ConsoleFunctions.ConsolePresent || (ConsoleFunctions.ConsolePresent && width < Console.WindowWidth)) {
+						sb.Append(Environment.NewLine);
+					}
+				}
+				sb.Append(AlignText(width, st, leftEnd, line, rightEnd));
+				if (!ConsoleFunctions.ConsolePresent || (ConsoleFunctions.ConsolePresent && width < Console.WindowWidth)) {
 					sb.Append(Environment.NewLine);
 				}
 			}
-			sb.Append(AlignText(width, text, leftEnd, line, rightEnd));
+
 			return sb.ToString();
 		}
 
 		private static readonly char[] splitChars = { ' ', ',', '.' };
 		private static string GetRow(int width, ref string text) {
 			string row;
-			string slice = text.Substring(0, width);
+			int max = width < text.Length ? width : text.Length;
+			string slice = text.Substring(0, max);
 
 			// Get split closest to end for chars.
 			int splitBest = -1;

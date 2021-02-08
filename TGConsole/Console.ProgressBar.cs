@@ -10,11 +10,11 @@ namespace TGConsole {
 
 
 		public ProgressBar()
-			: this(100, Config.DefaultWidth - 9) {
+			: this(100, Config.ConsoleWidth - 9) {
 		}
 
 		public ProgressBar(int max)
-			: this(max, Config.DefaultWidth - 9) {
+			: this(max, Config.ConsoleWidth - 9) {
 		}
 
 		public ProgressBar(int max, int width) {
