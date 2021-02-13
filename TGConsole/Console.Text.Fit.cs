@@ -52,7 +52,7 @@ namespace TGConsole {
 				}
 			}
 
-			return sb.ToString();
+			return sb.ToString().TrimEnd('\r', '\n');
 		}
 
 		private static readonly char[] splitChars = { ' ', ',', '.' };
