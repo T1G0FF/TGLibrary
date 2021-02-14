@@ -36,21 +36,15 @@ namespace TGConsole {
 			int rowWidth = width - 4;
 			StringBuilder sb = new StringBuilder();
 
-			string[] splitText = text.Split(new string[] { "\n", Environment.NewLine }, StringSplitOptions.None);
-			foreach (string st in splitText) {
-				while (st.Length > rowWidth) {
-					string row = GetRow(rowWidth, ref text);
+			while (text.Length > rowWidth) {
+				string row = GetRow(rowWidth, ref text);
 
-					sb.Append(AlignText(width, row, leftEnd, line, rightEnd));
-					if (!ConsoleFunctions.ConsolePresent || (ConsoleFunctions.ConsolePresent && width < Console.WindowWidth)) {
-						sb.Append(Environment.NewLine);
-					}
-				}
-				sb.Append(AlignText(width, st, leftEnd, line, rightEnd));
+				sb.Append(AlignText(width, row, leftEnd, line, rightEnd));
 				if (!ConsoleFunctions.ConsolePresent || (ConsoleFunctions.ConsolePresent && width < Console.WindowWidth)) {
 					sb.Append(Environment.NewLine);
 				}
 			}
+			sb.Append(AlignText(width, text, leftEnd, line, rightEnd));
 
 			return sb.ToString().TrimEnd('\r', '\n');
 		}
@@ -62,11 +56,7 @@ namespace TGConsole {
 			string slice = text.Substring(0, max);
 
 			// Get split closest to end for chars.
-			int splitBest = -1;
-			foreach (char c in splitChars) {
-				int curr = slice.LastIndexOf(c);
-				splitBest = curr > splitBest ? curr : splitBest;
-			}
+			int splitBest = slice.LastIndexOfAny(splitChars, max - 1);
 
 			int splitNewLine = slice.IndexOf('\n');
 			int splitEnvNewLine = slice.IndexOf(Environment.NewLine);
