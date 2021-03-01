@@ -84,13 +84,13 @@ namespace TGConsole {
 				_width = (width > 0) ? width : Config.ConsoleWidth;
 
 				_sb = new StringBuilder();
-				_sb.AppendLine(GetTopRow(_title));
+				this._AppendRow(GetTopRow(_title));
 			}
 			#endregion
 
 			#region Public Methods
 			public void AppendRow(string text) {
-				_sb.AppendLine(GetMiddleRow(text));
+				this._AppendRow(GetMiddleRow(text));
 			}
 
 			public override string ToString() {
@@ -104,6 +104,15 @@ namespace TGConsole {
 			#endregion
 
 			#region Private Methods
+			private void _AppendRow(string text) {
+				if (ConsoleFunctions.ConsolePresent) {
+					_sb.Append(text);
+				}
+				else {
+					_sb.AppendLine(text);
+				}
+			}
+
 			private string GetTopRow(string text) {
 				char l = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Top][(int) AlertDescriptor.CharIndex.Left];
 				char c = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Top][(int) AlertDescriptor.CharIndex.Center];

@@ -8,6 +8,8 @@
 
 # Visual Studio
 .Properties/
+Properties/
+/.vs
 *.csproj
 *.sln
 
@@ -192,5 +194,3 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-/TGLibraryTests
-/.vs

@@ -36,6 +36,8 @@ namespace TGConsole {
 			int rowWidth = width - 4;
 			StringBuilder sb = new StringBuilder();
 
+			text = text.Replace("\t", "    ");
+
 			while (text.Length > rowWidth) {
 				string row = GetRow(rowWidth, ref text);
 
