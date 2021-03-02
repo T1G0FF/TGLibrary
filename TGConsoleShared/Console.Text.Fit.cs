@@ -36,9 +36,9 @@ namespace TGConsole {
 			int rowWidth = width - 4;
 			StringBuilder sb = new StringBuilder();
 
-			text = text.Replace("\t", "    ");
+			text = text.Replace("\t", new string(' ', 4));
 
-			while (text.Length > rowWidth) {
+			while (text.Length > rowWidth || text.Split('\n').Length > 1) {
 				string row = GetRow(rowWidth, ref text);
 
 				sb.Append(AlignText(width, row, leftEnd, line, rightEnd));
