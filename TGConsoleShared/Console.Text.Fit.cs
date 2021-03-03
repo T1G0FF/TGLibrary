@@ -60,19 +60,23 @@ namespace TGConsole {
 			// Get split closest to end for chars.
 			int splitBest = slice.LastIndexOfAny(splitChars, max - 1);
 
+			int splitStart = 1; // Include charcter in row, unless it's a newline character.
+			int splitWidth = 1; // Environment.Newline could be 2 chars wide "\r\n"
 			int splitNewLine = slice.IndexOf('\n');
 			int splitEnvNewLine = slice.IndexOf(Environment.NewLine);
 			// Get split closest to start for new lines.
 			// If a new row character is found and it appears before where we want to split, keep the newline
 			if ((splitEnvNewLine > -1) && (splitEnvNewLine < splitNewLine)) {
 				splitNewLine = splitEnvNewLine;
+				splitWidth = Environment.NewLine.Length;
 			}
 			if ((splitNewLine > -1) && (splitNewLine < splitBest)) {
 				splitBest = splitNewLine;
+				splitStart = 0;
 			}
 
-			row = text.Substring(0, splitBest + 1);
-			text = text.Substring(splitBest + 1);
+			row = text.Substring(0, splitBest + splitStart);
+			text = text.Substring(splitBest + splitWidth);
 
 			return row.Trim();
 		}
