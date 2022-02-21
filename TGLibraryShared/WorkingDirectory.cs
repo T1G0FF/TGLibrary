@@ -34,8 +34,8 @@ namespace TGLibrary {
 			if (!disposed) {
 				// Managed objects
 				if (disposing) {
-					Path = null;
 					FileHelper.RemoveDirectory(Path);
+					Path = null;
 				}
 				// Unmanaged objects.
 
