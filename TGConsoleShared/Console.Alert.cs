@@ -78,11 +78,11 @@ namespace TGConsole {
 			#endregion
 
 			#region Constructors
-			public AlertBuilder(AlertType type, string title = null, int width = -1) {
+			public AlertBuilder(AlertType type, string title = null, int? width = null) {
 				_type = type;
 				_alert = _alertLookup[_type];
 				_title = title ?? _alert.DefaultTitle;
-				_width = width;
+				_width = width ?? Config.ConsoleWidth;
 				_contents = new List<string>(3);
 
 				_contents.Add(_title);
