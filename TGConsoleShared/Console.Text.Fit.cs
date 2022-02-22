@@ -60,7 +60,7 @@ namespace TGConsole {
 			// Get split closest to end for chars.
 			int splitBest = slice.LastIndexOfAny(splitChars, max - 1);
 
-			int splitStart = 1; // Include charcter in row, unless it's a newline character.
+			int splitStart = 1; // Include character in row, unless it's a newline character.
 			int splitWidth = 1; // Environment.Newline could be 2 chars wide "\r\n"
 			int splitNewLine = slice.IndexOf('\n');
 			int splitEnvNewLine = slice.IndexOf(Environment.NewLine);
