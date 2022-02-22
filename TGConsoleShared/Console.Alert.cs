@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TGLibrary;
 
 namespace TGConsole {
 	public class Alert {
@@ -24,7 +25,7 @@ namespace TGConsole {
 			#region Private Properties
 			private readonly AlertType _type;
 			private AlertDescriptor _alert;
-			private StringBuilder _sb;
+			private List<string> _contents;
 			private string _title;
 			private readonly int _width;
 			private static readonly Dictionary<AlertType, AlertDescriptor> _alertLookup = new Dictionary<AlertType, AlertDescriptor>() {
@@ -81,39 +82,59 @@ namespace TGConsole {
 				_type = type;
 				_alert = _alertLookup[_type];
 				_title = title ?? _alert.DefaultTitle;
-				_width = (width > 0) ? width : Config.ConsoleWidth;
+				_width = width;
+				_contents = new List<string>(3);
 
-				_sb = new StringBuilder();
-				this._AppendRow(GetTopRow(_title));
+				_contents.Add(_title);
 			}
 			#endregion
 
 			#region Public Methods
 			public void AppendRow(string text) {
-				this._AppendRow(GetMiddleRow(text));
+				_contents.AddRange(text.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.None));
 			}
 
 			public override string ToString() {
-				return this.ToString("");
+				return this.ToString(string.Empty, null);
+			}
+			public string ToString(int? width = null) {
+				return this.ToString(string.Empty, width);
 			}
 
-			public string ToString(string text) {
-				_sb.Append(GetBottomRow(text));
-				return _sb.ToString();
+			public string ToString(string text, int? width = null) {
+				_contents.Add(text);
+				int localWidth = GetWidth(width);
+
+				StringBuilder _sb = new StringBuilder();
+				if (ConsoleFunctions.ConsolePresent) {
+					_sb.Append(GetTopRow(_contents[0], localWidth));
+					for (int i = 1; i < _contents.Count - 1; i++) { // 2nd to 2nd Last
+						var row = _contents[i];
+						_sb.Append(GetMiddleRow(row, localWidth));
+					}
+				}
+				else {
+					_sb.AppendLine(GetTopRow(_contents[0], localWidth));
+					for (int i = 1; i < _contents.Count - 1; i++) { // 2nd to 2nd Last
+						var row = _contents[i];
+						_sb.AppendLine(GetMiddleRow(row, localWidth));
+					}
+				}
+				_sb.Append(GetBottomRow(_contents[_contents.Count - 1], localWidth));
+				return _sb.ToString();				
+			}
+
+			public int GetWidth(int? width = null) {
+				var result = width.HasValue ? width.Value : _width;
+				if (result < 0) {
+					result = _contents.MaxBy(row => row.Length).Length + 4; // 4 in total = 2 Ends and 2 Spaces
+				}
+				return result;
 			}
 			#endregion
 
 			#region Private Methods
-			private void _AppendRow(string text) {
-				if (ConsoleFunctions.ConsolePresent) {
-					_sb.Append(text);
-				}
-				else {
-					_sb.AppendLine(text);
-				}
-			}
-
-			private string GetTopRow(string text) {
+			private string GetTopRow(string text, int width) {
 				char l = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Top][(int) AlertDescriptor.CharIndex.Left];
 				char c = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Top][(int) AlertDescriptor.CharIndex.Center];
 				char r = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Top][(int) AlertDescriptor.CharIndex.Right];
@@ -121,19 +142,19 @@ namespace TGConsole {
 				switch (_type) {
 					case AlertType.Error:
 					case AlertType.Usage:
-						return Text.FitCenter(_width, text, l, c, r);
+						return Text.FitCenter(width, text, l, c, r);
 					case AlertType.Info:
-						return Text.FitLeft(_width, text, l, c, r);
+						return Text.FitLeft(width, text, l, c, r);
 					case AlertType.Message:
-						return (String.IsNullOrEmpty(text)) ? Draw.Line(_width, l, c, r) : Text.FitLeft(_width, text, l, c, r);
+						return (String.IsNullOrEmpty(text)) ? Draw.Line(width, l, c, r) : Text.FitLeft(width, text, l, c, r);
 					case AlertType.Title:
-						return (String.IsNullOrEmpty(text)) ? Draw.Line(_width, l, c, r) : Text.FitRight(_width, text, l, c, r);
+						return (String.IsNullOrEmpty(text)) ? Draw.Line(width, l, c, r) : Text.FitRight(width, text, l, c, r);
 					default:
 						return null;
 				}
 			}
 
-			private string GetMiddleRow(string text) {
+			private string GetMiddleRow(string text, int width) {
 				char l = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Middle][(int) AlertDescriptor.CharIndex.Left];
 				char c = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Middle][(int) AlertDescriptor.CharIndex.Center];
 				char r = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Middle][(int) AlertDescriptor.CharIndex.Right];
@@ -142,16 +163,16 @@ namespace TGConsole {
 					case AlertType.Error:
 					case AlertType.Message:
 					case AlertType.Title:
-						return Text.FitCenter(_width, text, l, c, r);
+						return Text.FitCenter(width, text, l, c, r);
 					case AlertType.Info:
 					case AlertType.Usage:
-						return Text.FitLeft(_width, text, l, c, r);
+						return Text.FitLeft(width, text, l, c, r);
 					default:
 						return null;
 				}
 			}
 
-			private string GetBottomRow(string text) {
+			private string GetBottomRow(string text, int width) {
 				char l = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Bottom][(int) AlertDescriptor.CharIndex.Left];
 				char c = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Bottom][(int) AlertDescriptor.CharIndex.Center];
 				char r = _alert.BoxChars[(int) AlertDescriptor.CharIndex.Bottom][(int) AlertDescriptor.CharIndex.Right];
@@ -162,7 +183,7 @@ namespace TGConsole {
 					case AlertType.Message:
 					case AlertType.Title:
 					case AlertType.Usage:
-						return Draw.Line(_width, l, c, r);
+						return (String.IsNullOrEmpty(text)) ? Draw.Line(width, l, c, r) : Text.FitRight(width, text, l, c, r);
 					default:
 						return null;
 				}
@@ -183,12 +204,12 @@ namespace TGConsole {
 				}
 
 				if (disposing) {
-					_sb.Clear();
+					_contents.Clear();
 					_alertLookup.Clear();
 				}
 
 				_alert = null;
-				_sb = null;
+				_contents = null;
 				_title = null;
 
 				_disposed = true;
