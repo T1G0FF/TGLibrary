@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TGTaskHelper {
@@ -15,14 +16,20 @@ namespace TGTaskHelper {
 		}
 		#region No Extra Parameters
 		public static T[] ProcessDirectory<T>(string dirPath, Func<string, T> function) {
-			return ProcessDirectory(dirPath, ThreadCount, function);
+			return ProcessDirectory(dirPath, ThreadCount, null, function);
+		}
+		public static T[] ProcessDirectory<T>(string dirPath, CancellationToken? cancellationToken, Func<string, T> function) {
+			return ProcessDirectory(dirPath, ThreadCount, cancellationToken, function);
 		}
 		public static T[] ProcessDirectory<T>(string dirPath, int threadCount, Func<string, T> function) {
+			return ProcessDirectory(dirPath, threadCount, null, function);
+		}
+		public static T[] ProcessDirectory<T>(string dirPath, int threadCount, CancellationToken? cancellationToken, Func<string, T> function) {
 			T[] result = null;
 
 			if (Directory.Exists(dirPath)) {
 				string[] fileList = Directory.GetFiles(dirPath);
-				result = ProcessCollection<string, T>(fileList, threadCount, (currentFile) => {
+				result = ProcessCollection<string, T>(fileList, threadCount, cancellationToken, (currentFile) => {
 					var currentResult = default(T);
 					if (File.Exists(currentFile)) {
 						currentResult = function(currentFile);
@@ -35,10 +42,16 @@ namespace TGTaskHelper {
 		}
 
 		public static T[] ProcessFileList<T>(string[] fileList, Func<string, T> function) {
-			return ProcessFileList<T>(fileList, ThreadCount, function);
+			return ProcessFileList<T>(fileList, ThreadCount, null, function);
+		}
+		public static T[] ProcessFileList<T>(string[] fileList, CancellationToken? cancellationToken, Func<string, T> function) {
+			return ProcessFileList<T>(fileList, ThreadCount, cancellationToken, function);
 		}
 		public static T[] ProcessFileList<T>(string[] fileList, int threadCount, Func<string, T> function) {
-			return ProcessCollection<string, T>(fileList, threadCount, (currentFile) => {
+			return ProcessFileList<T>(fileList, threadCount, null, function);
+		}
+		public static T[] ProcessFileList<T>(string[] fileList, int threadCount, CancellationToken? cancellationToken, Func<string, T> function) {
+			return ProcessCollection<string, T>(fileList, threadCount, cancellationToken, (currentFile) => {
 				var result = default(T);
 				if (File.Exists(currentFile)) {
 					result = function(currentFile);
@@ -48,9 +61,15 @@ namespace TGTaskHelper {
 		}
 
 		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, Func<T1, T2> function) {
-			return ProcessCollection<T1, T2>(collection, ThreadCount, function);
+			return ProcessCollection<T1, T2>(collection, ThreadCount, null, function);
+		}
+		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, CancellationToken? cancellationToken, Func<T1, T2> function) {
+			return ProcessCollection<T1, T2>(collection, ThreadCount, cancellationToken, function);
 		}
 		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, int threadCount, Func<T1, T2> function) {
+			return ProcessCollection<T1, T2>(collection, threadCount, null, function);
+		}
+		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, int threadCount, CancellationToken? cancellationToken, Func<T1, T2> function) {
 			T2[] resultsArray = null;
 
 			if (collection != null && collection.Count > 0) {
@@ -75,7 +94,7 @@ namespace TGTaskHelper {
 							resultsArray[itemIndex] = function(currentItem);
 						});
 					}
-					Task.WaitAll(currentTasks);
+					Task.WaitAll(currentTasks, cancellationToken ?? new CancellationToken());
 				}
 			}
 
@@ -85,14 +104,20 @@ namespace TGTaskHelper {
 
 		#region Extra Parameters Array
 		public static T[] ProcessDirectory<T>(string dirPath, Func<string, object[], T> function, params object[] parameters) {
-			return ProcessDirectory<T>(dirPath, threadCount: ThreadCount, function: function, parameters: parameters);
+			return ProcessDirectory<T>(dirPath, ThreadCount, null, function, parameters);
+		}
+		public static T[] ProcessDirectory<T>(string dirPath, CancellationToken? cancellationToken, Func<string, object[], T> function, params object[] parameters) {
+			return ProcessDirectory<T>(dirPath, ThreadCount, cancellationToken, function, parameters);
 		}
 		public static T[] ProcessDirectory<T>(string dirPath, int threadCount, Func<string, object[], T> function, params object[] parameters) {
+			return ProcessDirectory<T>(dirPath, threadCount, null, function, parameters);
+		}
+		public static T[] ProcessDirectory<T>(string dirPath, int threadCount, CancellationToken? cancellationToken, Func<string, object[], T> function, params object[] parameters) {
 			T[] result = null;
 
 			if (Directory.Exists(dirPath)) {
 				string[] fileList = Directory.GetFiles(dirPath);
-				result = ProcessCollection<string, T>(fileList, threadCount, (currentFile, currentParameters) => {
+				result = ProcessCollection<string, T>(fileList, threadCount, cancellationToken, (currentFile, currentParameters) => {
 					var currentResult = default(T);
 					if (File.Exists(currentFile)) {
 						currentResult = function(currentFile, currentParameters);
@@ -105,10 +130,16 @@ namespace TGTaskHelper {
 		}
 
 		public static T[] ProcessFileList<T>(string[] fileList, Func<string, object[], T> function, params object[] parameters) {
-			return ProcessFileList<T>(fileList, ThreadCount, function);
+			return ProcessFileList<T>(fileList, ThreadCount, null, function);
+		}
+		public static T[] ProcessFileList<T>(string[] fileList, CancellationToken? cancellationToken, Func<string, object[], T> function, params object[] parameters) {
+			return ProcessFileList<T>(fileList, ThreadCount, null, function);
 		}
 		public static T[] ProcessFileList<T>(string[] fileList, int threadCount, Func<string, object[], T> function, params object[] parameters) {
-			return ProcessCollection<string, T>(fileList, threadCount, (currentFile, currentParameters) => {
+			return ProcessFileList<T>(fileList, threadCount, null, function);
+		}
+		public static T[] ProcessFileList<T>(string[] fileList, int threadCount, CancellationToken? cancellationToken, Func<string, object[], T> function, params object[] parameters) {
+			return ProcessCollection<string, T>(fileList, threadCount, cancellationToken, (currentFile, currentParameters) => {
 				var result = default(T);
 				if (File.Exists(currentFile)) {
 					result = function(currentFile, currentParameters);
@@ -118,9 +149,15 @@ namespace TGTaskHelper {
 		}
 
 		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, Func<T1, object[], T2> function, params object[] parameters) {
-			return ProcessCollection(collection, ThreadCount, function, parameters);
+			return ProcessCollection(collection, ThreadCount, null, function, parameters);
+		}
+		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, CancellationToken? cancellationToken, Func<T1, object[], T2> function, params object[] parameters) {
+			return ProcessCollection(collection, ThreadCount, cancellationToken, function, parameters);
 		}
 		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, int threadCount, Func<T1, object[], T2> function, params object[] parameters) {
+			return ProcessCollection(collection, threadCount, null, function, parameters);
+		}
+		public static T2[] ProcessCollection<T1, T2>(ICollection<T1> collection, int threadCount, CancellationToken? cancellationToken, Func<T1, object[], T2> function, params object[] parameters) {
 			T2[] resultsArray = null;
 
 			if (collection != null && collection.Count > 0) {
@@ -145,7 +182,7 @@ namespace TGTaskHelper {
 							resultsArray[itemIndex] = function(currentItem, parameters);
 						});
 					}
-					Task.WaitAll(currentTasks);
+					Task.WaitAll(currentTasks, cancellationToken ?? new CancellationToken());
 				}
 			}
 
