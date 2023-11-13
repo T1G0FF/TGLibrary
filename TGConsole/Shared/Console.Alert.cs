@@ -5,10 +5,18 @@ using TGLibrary;
 
 namespace TGConsole {
 	public class Alert {
-		#region Sub Classes
+		#region Enums
+		public enum FitTo { 
+			Default = Console,
+			Text = 1,
+			Console = 2
+        }
+		#endregion
+
+		#region Subclasses
 		public class AlertBuilder : IDisposable {
-			#region Subclasses
-			public class AlertDescriptor {
+		    #region Subclasses
+            public class AlertDescriptor {
 				public enum CharIndex {
 					Top = 0,
 					Middle = 1,
@@ -20,14 +28,14 @@ namespace TGConsole {
 				public string DefaultTitle;
 				public char[][] BoxChars;
 			}
-			#endregion
+            #endregion
 
-			#region Private Properties
-			private readonly AlertType _type;
+            #region Private Properties
+            private AlertType _type;
 			private AlertDescriptor _alert;
 			private List<string> _contents;
 			private string _title;
-			private readonly int _width;
+			private int _width;
 			private static readonly Dictionary<AlertType, AlertDescriptor> _alertLookup = new Dictionary<AlertType, AlertDescriptor>() {
 				{   AlertType.Error, new AlertDescriptor() {
 						DefaultTitle = "! Error !",
@@ -75,18 +83,25 @@ namespace TGConsole {
 					}
 				}
 			};
-			#endregion
+            #endregion
 
-			#region Constructors
-			public AlertBuilder(AlertType type, string title = null, int? width = null) {
-				_type = type;
-				_alert = _alertLookup[_type];
-				_title = title ?? _alert.DefaultTitle;
-				_width = width ?? Config.ConsoleWidth;
-				_contents = new List<string>(3);
+            #region Constructors
+            public AlertBuilder(AlertType type, string title = null, FitTo fitTo = FitTo.Default) {
+				Init(type, title, FitToAsWidth(fitTo));
+            }
+            public AlertBuilder(AlertType type, string title, int width) {
+                Init(type, title, width);
+            }
 
-				_contents.Add(_title);
-			}
+			private void Init(AlertType type, string title, int width) {
+                _type = type;
+                _alert = _alertLookup[_type];
+                _title = title ?? _alert.DefaultTitle;
+                _width = width;
+                _contents = new List<string>(3);
+
+                _contents.Add(_title);
+            }
 			#endregion
 
 			#region Public Methods
@@ -95,18 +110,24 @@ namespace TGConsole {
 			}
 
 			public override string ToString() {
-				return this.ToString(string.Empty, null);
+				return this.ToString(string.Empty, FitTo.Default);
 			}
-			public string ToString(int? width = null) {
+            public string ToString(FitTo fitTo = FitTo.Default) {
+                return this.ToString(string.Empty, FitToAsWidth(fitTo));
+            }
+            public string ToString(int width) {
 				return this.ToString(string.Empty, width);
 			}
 
-			public string ToString(string text, int? width = null) {
+			public string ToString(string text, FitTo fitTo = FitTo.Default) {
+				return this.ToString(text, FitToAsWidth(fitTo));
+			}
+            public string ToString(string text, int width) {
 				_contents.Add(text);
 				int localWidth = GetWidth(width);
 
 				StringBuilder _sb = new StringBuilder();
-				if (ConsoleFunctions.ConsolePresent) {
+				if (ConsoleFunctions.ConsolePresent && localWidth == _width) {
 					_sb.Append(GetTopRow(_contents[0], localWidth));
 					for (int i = 1; i < _contents.Count - 1; i++) { // 2nd to 2nd Last
 						var row = _contents[i];
@@ -124,7 +145,10 @@ namespace TGConsole {
 				return _sb.ToString();				
 			}
 
-			public int GetWidth(int? width = null) {
+			public int GetWidth(FitTo fitTo) {
+				return this.GetWidth(FitToAsWidth(fitTo));
+			}
+            public int GetWidth(int? width) {
 				var result = width.HasValue ? width.Value : _width;
 				if (result < 0) {
 					result = _contents.MaxBy(row => row.Length).Length + 4; // 4 in total = 2 Ends and 2 Spaces
@@ -217,6 +241,9 @@ namespace TGConsole {
 			#endregion
 			#endregion
 		}
+        #endregion
+
+        #region Private Properties
 		#endregion
 
 		#region Public Properties
@@ -230,70 +257,117 @@ namespace TGConsole {
 		#endregion
 
 		#region Public Methods
-		public static string Title(string title, int width = -1) {
+		public static string Title(string title, FitTo fitTo = FitTo.Default) {
+			return Title(title, FitToAsWidth(fitTo));
+		}
+		public static string Title(string header, string title, FitTo fitTo = FitTo.Default) {
+            return Title(header, title, FitToAsWidth(fitTo));
+        }
+        public static string Title(string title, int width) {
 			using (var ab = new AlertBuilder(AlertType.Title, null, width)) {
 				ab.AppendRow(title);
 				return ab.ToString();
 			}
 		}
-		public static string Title(string header, string title, int width = -1) {
+        public static string Title(string header, string title, int width) {
 			using (var ab = new AlertBuilder(AlertType.Title, header, width)) {
 				ab.AppendRow(title);
 				return ab.ToString();
 			}
 		}
-		public static string Message(string text, int width = -1) {
+
+		public static string Message(string title, FitTo fitTo = FitTo.Default) {
+			return Message(title, FitToAsWidth(fitTo));
+		}
+		public static string Message(string header, string title, FitTo fitTo = FitTo.Default) {
+            return Message(header, title, FitToAsWidth(fitTo));
+        }
+        public static string Message(string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Message, null, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
-		public static string Message(string title, string text, int width = -1) {
+        public static string Message(string title, string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Message, title, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
 
-		public static string Info(string text, int width = -1) {
+		public static string Info(string title, FitTo fitTo = FitTo.Default) {
+			return Info(title, FitToAsWidth(fitTo));
+		}
+		public static string Info(string header, string title, FitTo fitTo = FitTo.Default) {
+            return Info(header, title, FitToAsWidth(fitTo));
+        }
+        public static string Info(string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Info, null, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
-		public static string Info(string title, string text, int width = -1) {
+        public static string Info(string title, string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Info, title, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
 
-		public static string Usage(string text, int width = -1) {
+		public static string Usage(string title, FitTo fitTo = FitTo.Default) {
+			return Usage(title, FitToAsWidth(fitTo));
+		}
+		public static string Usage(string header, string title, FitTo fitTo = FitTo.Default) {
+            return Usage(header, title, FitToAsWidth(fitTo));
+        }
+        public static string Usage(string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Usage, null, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
-		public static string Usage(string title, string text, int width = -1) {
+        public static string Usage(string title, string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Usage, title, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
 
-		public static string Error(string text, int width = -1) {
+		public static string Error(string title, FitTo fitTo = FitTo.Default) {
+			return Error(title, FitToAsWidth(fitTo));
+		}
+		public static string Error(string header, string title, FitTo fitTo = FitTo.Default) {
+            return Error(header, title, FitToAsWidth(fitTo));
+        }
+        public static string Error(string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Error, null, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
-		public static string Error(string title, string text, int width = -1) {
+        public static string Error(string title, string text, int width) {
 			using (var ab = new AlertBuilder(AlertType.Error, title, width)) {
 				ab.AppendRow(text);
 				return ab.ToString();
 			}
 		}
-		#endregion
-	}
+        #endregion
+
+        #region Private Methods
+		private static int FitToAsWidth(FitTo fitTo) {
+                int width;
+                switch (fitTo) {
+                    default:
+                    case FitTo.Text:
+                        width = -1;
+                        break;
+                    case FitTo.Console:
+                        width = Config.ConsoleWidth;
+                        break;
+                }
+				return width;
+            }
+        #endregion
+    }
 }
 
