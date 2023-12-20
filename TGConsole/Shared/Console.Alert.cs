@@ -106,20 +106,20 @@ namespace TGConsole {
 
 			#region Public Methods
 			public void AppendRow(string text) {
-				_contents.AddRange(text.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.None));
+				_contents.AddRange(text.Split(new[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.None));
 			}
 
 			public override string ToString() {
-				return this.ToString(string.Empty, FitTo.Default);
+				return this.ToString(string.Empty, _width);
 			}
-            public string ToString(FitTo fitTo = FitTo.Default) {
+            public string ToString(FitTo fitTo) {
                 return this.ToString(string.Empty, FitToAsWidth(fitTo));
             }
             public string ToString(int width) {
 				return this.ToString(string.Empty, width);
 			}
 
-			public string ToString(string text, FitTo fitTo = FitTo.Default) {
+			public string ToString(string text, FitTo fitTo) {
 				return this.ToString(text, FitToAsWidth(fitTo));
 			}
             public string ToString(string text, int width) {
@@ -149,7 +149,7 @@ namespace TGConsole {
 				return this.GetWidth(FitToAsWidth(fitTo));
 			}
             public int GetWidth(int? width) {
-				var result = width.HasValue ? width.Value : _width;
+				var result = width ?? _width;
 				if (result < 0) {
 					result = _contents.MaxBy(row => row.Length).Length + 4; // 4 in total = 2 Ends and 2 Spaces
 				}
