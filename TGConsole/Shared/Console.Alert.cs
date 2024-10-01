@@ -355,18 +355,18 @@ namespace TGConsole {
 
 		#region Private Methods
 		private static int FitToAsWidth(FitTo fitTo) {
-				int width;
-				switch (fitTo) {
-					default:
-					case FitTo.Text:
-						width = -1;
-						break;
-					case FitTo.Console:
-						width = Config.ConsoleWidth;
-						break;
-				}
-				return width;
+			int width;
+			switch (fitTo) {
+				default:
+				case FitTo.Text:
+					width = -1;
+					break;
+				case FitTo.Console:
+					width = Config.ConsoleWidth;
+					break;
 			}
+			return width;
+		}
 		#endregion
 	}
 }

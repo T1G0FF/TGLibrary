@@ -5,7 +5,7 @@ namespace TGConsole {
 		public int Max { get; private set; }
 		public int Width { get; private set; }
 		public double Percent { get; private set; }
-		public int Loaded { get { return (int) Math.Ceiling(Percent * Width); } }
+		public int Loaded { get { return (int)Math.Ceiling(Percent * Width); } }
 		public int Unloaded { get { return Width - Loaded; } }
 
 
@@ -24,7 +24,7 @@ namespace TGConsole {
 		}
 
 		public string Update(int value) {
-			Percent = (double) value / (double) Max;
+			Percent = (double)value / (double)Max;
 			string Bar = this.ToString();
 			if (value > Max - 1) {
 				Bar = Bar + "\n";
