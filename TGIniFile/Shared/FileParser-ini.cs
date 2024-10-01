@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace TGiniFile {
+namespace IniFileNS {
 	public class IniFile {
 		private readonly string _filePath;
-
 		public IniFile(string filePath) {
 			_filePath = filePath;
 		}
 
+		#region bool
 		public bool? GetBool(string section, string key) {
 			return GetBool(_filePath, section, key);
 		}
@@ -20,10 +21,15 @@ namespace TGiniFile {
 			if (bool.TryParse(value, out bool parseResult)) {
 				result = parseResult;
 			}
+			if (int.TryParse(value, out int parseResultInt)) {
+				result = parseResultInt > 0;
+			}
 
 			return result;
 		}
+		#endregion
 
+		#region int		
 		public int? GetInt(string section, string key) {
 			return GetInt(_filePath, section, key);
 		}
@@ -37,7 +43,9 @@ namespace TGiniFile {
 
 			return result;
 		}
+		#endregion
 
+		#region double
 		public double? GetDouble(string section, string key) {
 			return GetDouble(_filePath, section, key);
 		}
@@ -51,7 +59,9 @@ namespace TGiniFile {
 
 			return result;
 		}
+		#endregion
 
+		#region string
 		public string GetString(string section, string key) {
 			return GetString(_filePath, section, key);
 		}
@@ -68,7 +78,7 @@ namespace TGiniFile {
 						continue;
 
 					if (line.ToLower() == sectionName.ToLower()) {
-						result = GetKeyValue(sr, key);
+						result = getKeyValue(sr, key);
 						break;
 					}
 				}
@@ -76,7 +86,9 @@ namespace TGiniFile {
 
 			return result;
 		}
+		#endregion
 
+		#region GetAllInSection
 		public Dictionary<string, string> GetAllInSection(string section) {
 			return GetAllInSection(_filePath, section);
 		}
@@ -84,39 +96,37 @@ namespace TGiniFile {
 			Dictionary<string, string> result = new Dictionary<string, string>();
 			string sectionName = $"[{section}]";
 
-			using (StreamReader sr = new StreamReader(filePath)) {
-				bool found = false;
-				string line = "";
-				while ((line = sr.ReadLine()) != null) {
-					if (line == "")
-						continue;
-					if (found) {
-						if (line[0] == '[')
-							break;
+			bool found = false;
+			foreach (string line in _readFrom(filePath)) {
+				if (line == "")
+					continue;
+				if (found) {
+					if (line[0] == '[')
+						break;
 
-						Match m = KeyValuePair.Match(line);
-						if (m.Success) {
-							result.Add(m.Groups[1].Value.ToLower(), m.Groups[2].Value);
-						}
+					Match m = KeyValuePair.Match(line);
+					if (m.Success) {
+						result.Add(m.Groups[1].Value.ToLower(), m.Groups[2].Value);
 					}
-					else {
-						if (line[0] != '[')
-							continue;
+				}
+				else {
+					if (line[0] != '[')
+						continue;
 
-						if (line.ToLower() == sectionName.ToLower()) {
-							found = true;
-						}
+					if (line.ToLower() == sectionName.ToLower()) {
+						found = true;
 					}
 				}
 			}
 
 			return result;
 		}
+		#endregion
 
-		private static readonly Regex KeyValuePair = new Regex(@"([A-Za-z0-9]+)\s*[=]\s*(.+)");
-		private static string GetKeyValue(StreamReader sr, string key) {
+		private static readonly Regex KeyValuePair = new Regex(@"([A-Za-z0-9_]+?)\s*[=]\s*(.+)");
+		private static string getKeyValue(StreamReader sr, string key) {
 			string result = null;
-			string line;
+			string line = "";
 
 			// Keep reading until end of file or section.
 			while ((line = sr.ReadLine()) != null) {
@@ -137,6 +147,14 @@ namespace TGiniFile {
 			}
 
 			return result;
+		}
+		private static IEnumerable<string> _readFrom(string file) {
+			string line;
+			using (var reader = File.OpenText(file)) {
+				while ((line = reader.ReadLine()) != null) {
+					yield return line;
+				}
+			}
 		}
 	}
 }
