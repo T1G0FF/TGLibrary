@@ -1,9 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace IniFileNS {
+	public static class LocalExtensions {
+		public static bool ToBoolean(this string value, bool nullValueIs) {
+			return value.ToBoolean() ?? nullValueIs;
+		}
+		public static bool? ToBoolean(this string value) {
+			switch (value?.ToUpper().Trim()) {
+				case "TRUE":
+				case "T":
+				case "YES":
+				case "Y":
+				case "1":
+					return true;
+				case "FALSE":
+				case "F":
+				case "NO":
+				case "N":
+				case "0":
+					return false;
+				default:
+					return null;
+			}
+		}
+	}
+
 	public class IniFile {
 		private readonly string _filePath;
 		public IniFile(string filePath) {
@@ -18,11 +42,10 @@ namespace IniFileNS {
 			bool? result = null;
 
 			string value = GetString(filePath, section, key);
-			if (bool.TryParse(value, out bool parseResult)) {
-				result = parseResult;
-			}
-			if (int.TryParse(value, out int parseResultInt)) {
-				result = parseResultInt > 0;
+			if ((result = value.ToBoolean()) == null) {
+				if (int.TryParse(value, out int parseResultInt)) {
+					result = parseResultInt > 0;
+				}
 			}
 
 			return result;
@@ -61,6 +84,22 @@ namespace IniFileNS {
 		}
 		#endregion
 
+		#region decimal
+		public decimal? GetDecimal(string section, string key) {
+			return GetDecimal(_filePath, section, key);
+		}
+		public static decimal? GetDecimal(string filePath, string section, string key) {
+			decimal? result = null;
+
+			string value = GetString(filePath, section, key);
+			if (decimal.TryParse(value, out decimal parseResult)) {
+				result = parseResult;
+			}
+
+			return result;
+		}
+		#endregion
+
 		#region string
 		public string GetString(string section, string key) {
 			return GetString(_filePath, section, key);
@@ -85,6 +124,29 @@ namespace IniFileNS {
 			}
 
 			return result;
+		}
+		#endregion
+
+		#region char
+		public char? GetChar(string section, string key) {
+			return GetChar(_filePath, section, key); ;
+		}
+		public static char? GetChar(string filePath, string section, string key) {
+			var str = GetString(filePath, section, key);
+			return !string.IsNullOrEmpty(str) ? Regex.Unescape(str)[0] : (char?)null;
+		}
+		#endregion
+
+		#region string[]
+		public string[] GetDelimitedArray(string section, string key, char delim = ',', bool trimEntries = false) {
+			return GetDelimitedArray(_filePath, section, key, delim, trimEntries);
+		}
+		public static string[] GetDelimitedArray(string filePath, string section, string key, char delim = ',', bool trimEntries = false) {
+			var str = GetString(filePath, section, key);
+			if (string.IsNullOrEmpty(str)) return new string[0];
+			var split = str.Split(delim);
+			if (trimEntries) split = split.Select(i => i.Trim()).ToArray();
+			return split;
 		}
 		#endregion
 
