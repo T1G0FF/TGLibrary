@@ -1,8 +1,5 @@
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using TGConsole;
 
 namespace TGLibraryTestCore {
@@ -35,7 +32,7 @@ namespace TGLibraryTestCore {
 			Assert.AreEqual(Config.ConsoleWidth, topLine.Length);
 		}
 
-		
+
 		[TestMethod]
 		public void TGConsoleTests_FitToText() {
 			var titleStr = "Title Here";

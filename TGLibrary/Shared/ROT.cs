@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TGLibrary {
+﻿namespace TGLibrary {
 	public static class ROT {
 		public static string Encrypt(string DataToEncrypt) {
 			return Crypter(Config.DefaultRotation, DataToEncrypt);

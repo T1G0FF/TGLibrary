@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace TGLibrary {
-    public static class LocalExtensions {
+	public static class LocalExtensions {
 		// Based on https://github.com/morelinq/MoreLINQ/blob/master/MoreLinq/MaxBy.cs
 		public static (TSource Max, TSource Min) ExtremaBy<TSource, TKey>(this IEnumerable<TSource> collection, Func<TSource, TKey> selector)
 		  where TKey : IComparable<TKey> {

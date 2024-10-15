@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TGLibrary {
+﻿namespace TGLibrary {
 	/// <remarks>
 	/// Contains settings default configuration.
 	/// </remarks>

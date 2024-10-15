@@ -28,7 +28,7 @@ namespace TGLibrary {
 			float ascentPixel = tinyFont.Size * ascent / tinyFamily.GetEmHeight(FontStyle.Regular);
 			int descent = tinyFamily.GetCellDescent(FontStyle.Regular);
 			float descentPixel = tinyFont.Size * descent / tinyFamily.GetEmHeight(FontStyle.Regular);
-			descentPixel = (float) Math.Round(descentPixel, MidpointRounding.AwayFromZero);
+			descentPixel = (float)Math.Round(descentPixel, MidpointRounding.AwayFromZero);
 
 			StringFormat sf = new StringFormat(StringFormat.GenericDefault) {
 				LineAlignment = StringAlignment.Center,

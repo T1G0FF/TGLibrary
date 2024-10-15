@@ -222,7 +222,7 @@ namespace TGLibrary {
 			if (EnableMouseWheelZooming &&
 				this.ClientRectangle.Contains(e.Location)) {
 				double zoom = _zoomFactor;
-				zoom *= 1 + (double) e.Delta / MouseWheelDivisor;
+				zoom *= 1 + (double)e.Delta / MouseWheelDivisor;
 				ZoomFactor = zoom;
 			}
 			base.OnMouseWheel(e);
@@ -258,10 +258,10 @@ namespace TGLibrary {
 		private double ValidateZoomFactor(double zoom) {
 			zoom = Math.Min(zoom, MaximumZoomFactor);
 			if (this._image != null) {
-				if ((int) (_image.Width * zoom) < MinimumImageWidth)
-					zoom = (double) MinimumImageWidth / _image.Width;
-				if ((int) (_image.Height * zoom) < MinimumImageHeight)
-					zoom = (double) MinimumImageHeight / _image.Height;
+				if ((int)(_image.Width * zoom) < MinimumImageWidth)
+					zoom = (double)MinimumImageWidth / _image.Width;
+				if ((int)(_image.Height * zoom) < MinimumImageHeight)
+					zoom = (double)MinimumImageHeight / _image.Height;
 			}
 			return zoom;
 		}
@@ -275,9 +275,9 @@ namespace TGLibrary {
 			double targetAspect = (double) this.ClientSize.Width / this.ClientSize.Height;
 
 			if (sourceAspect > targetAspect)
-				return (double) this.ClientSize.Width / _image.Width;
+				return (double)this.ClientSize.Width / _image.Width;
 			else
-				return (double) this.ClientSize.Height / _image.Height;
+				return (double)this.ClientSize.Height / _image.Height;
 		}
 
 		// Center the zoomed image in the control bounds.
@@ -298,11 +298,11 @@ namespace TGLibrary {
 			Point imageCenter = FindZoomCenter(ZoomTo);
 
 			// Calculate the new size of the the image bounds.
-			_previousZoomFactor = (double) _imageBounds.Width / _image.Width;
+			_previousZoomFactor = (double)_imageBounds.Width / _image.Width;
 			if (Math.Abs(_zoomFactor - _previousZoomFactor) > 0.001) {
 				double zoomRatio = _zoomFactor / _previousZoomFactor;
-				_imageBounds.Width = (int) (_imageBounds.Width * zoomRatio);
-				_imageBounds.Height = (int) (_imageBounds.Height * zoomRatio);
+				_imageBounds.Width = (int)(_imageBounds.Width * zoomRatio);
+				_imageBounds.Height = (int)(_imageBounds.Height * zoomRatio);
 
 				// Find the resulting position of the zoom center prior to correction.
 				Point newPRelative = new Point {
